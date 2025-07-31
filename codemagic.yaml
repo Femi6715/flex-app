@@ -15,13 +15,17 @@ workflows:
       - name: Install dependencies
         script: |
           npm install
+      - name: Debug environment
+        script: |
+          echo "Current directory: $PWD"
+          ls -la
+          echo "FCI_BUILD_DIR: $FCI_BUILD_DIR"
+          ls -la $FCI_BUILD_DIR
+          
       - name: Setup build environment
         script: |
           # Setup Android SDK path
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > "$FCI_BUILD_DIR/AmazonFlexClone/android/local.properties"
-          
-          # Navigate to project directory
-          cd $FCI_BUILD_DIR/AmazonFlexClone
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > "android/local.properties"
           
           # Install dependencies
           npm install
@@ -38,7 +42,7 @@ workflows:
           
       - name: Build Android APK
         script: |
-          cd $FCI_BUILD_DIR/AmazonFlexClone/android
+          cd android
           
           # Build with detailed error output
           ./gradlew assembleRelease --stacktrace --info
