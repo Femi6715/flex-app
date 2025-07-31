@@ -10,12 +10,12 @@ workflows:
         script: |
           rm -rf node_modules package-lock.json
           npm install --force --legacy-peer-deps
-      - name: Install EAS CLI
+      - name: Install Expo CLI
         script: |
-          npm install -g @expo/cli eas-cli
-      - name: Build APK with EAS
+          npm install -g @expo/cli
+      - name: Build APK with Expo
         script: |
-          eas build --platform android --non-interactive --local
+          npx expo build:android --non-interactive
     artifacts:
       - build/**/outputs/**/*.apk
     publishing:
