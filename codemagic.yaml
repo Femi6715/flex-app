@@ -1,0 +1,30 @@
+workflows:
+  android-build:
+    name: Android Build
+    environment:
+      node: 18
+      vars:
+        PACKAGE_NAME: "com.amazonflexclone.app"
+        EXPO_PROJECT_ID: "AmazonFlexClone"
+    scripts:
+      - name: Install Expo CLI
+        script: |
+          npm install -g @expo/cli eas-cli
+      - name: Install dependencies
+        script: |
+          npm install
+      - name: Build Android APK
+        script: |
+          eas build --platform android --non-interactive
+    artifacts:
+      - build/**/outputs/**/*.apk
+      - *.apk
+    publishing:
+      email:
+        recipients:
+          - your-email@example.com
+      scripts:
+        - name: Build completed
+          script: |
+            echo "APK built successfully!"
+            echo "You can download the APK from the artifacts section." 
