@@ -28,14 +28,11 @@ workflows:
           echo "sdk.dir=$ANDROID_SDK_ROOT" > "android/local.properties"
           
           # Install dependencies
-          npm install
+          yarn install
           
           # Setup Gradle
           cd android
           chmod +x gradlew
-          
-          # Clean Gradle
-          ./gradlew clean
           
           # Show environment info
           ./gradlew -v
@@ -43,9 +40,13 @@ workflows:
       - name: Build Android APK
         script: |
           cd android
+          # Build debug APK first
+          ./gradlew clean assembleDebug --stacktrace --info
           
-          # Build with detailed error output
-          ./gradlew assembleRelease --stacktrace --info
+          # If debug build succeeds, build release
+          if [ $? -eq 0 ]; then
+            ./gradlew assembleRelease --stacktrace --info
+          fi
     artifacts:
       - build/**/outputs/**/*.apk
       - android/app/build/outputs/**/*.apk
