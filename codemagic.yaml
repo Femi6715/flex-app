@@ -43,17 +43,42 @@ workflows:
           # Build debug APK first
           ./gradlew clean assembleDebug --stacktrace --info
           
-          # If debug build succeeds, build release
+          # If debug build succeeds, build release APK and Bundle
           if [ $? -eq 0 ]; then
-            ./gradlew assembleRelease --stacktrace --info
+            ./gradlew assembleRelease bundleRelease --stacktrace --info
           fi
           
-          # List the APK files
+          # List and collect APK files
           echo "=== Available APK files ==="
           find . -name "*.apk" -ls
+          
+          # Create artifacts directories
+          mkdir -p $FCI_EXPORT_DIR/apk
+          mkdir -p $FCI_EXPORT_DIR/bundle
+          
+          # Copy APK files to export directory
+          if [ -d "app/build/outputs/apk/debug" ]; then
+            cp app/build/outputs/apk/debug/*.apk $FCI_EXPORT_DIR/apk/
+          fi
+          if [ -d "app/build/outputs/apk/release" ]; then
+            cp app/build/outputs/apk/release/*.apk $FCI_EXPORT_DIR/apk/
+          fi
+          
+          # Copy AAB files to export directory
+          if [ -d "app/build/outputs/bundle/release" ]; then
+            cp app/build/outputs/bundle/release/*.aab $FCI_EXPORT_DIR/bundle/
+          fi
+          
+          # List exported files
+          echo "=== Exported APK files ==="
+          ls -la $FCI_EXPORT_DIR/apk/
+          echo "=== Exported AAB files ==="
+          ls -la $FCI_EXPORT_DIR/bundle/
     artifacts:
-      - android/app/build/outputs/apk/debug/*.apk
-      - android/app/build/outputs/apk/release/*.apk
+      - $FCI_BUILD_DIR/android/app/build/outputs/apk/**/*.apk
+      - $HOME/clone/android/app/build/outputs/apk/**/*.apk
+      - android/app/build/outputs/bundle/**/*.aab
+      - $FCI_BUILD_DIR/android/app/build/outputs/bundle/**/*.aab
     publishing:
       email:
         recipients:
