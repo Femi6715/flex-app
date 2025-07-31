@@ -13,16 +13,24 @@ workflows:
       - name: Install Expo CLI
         script: |
           npm install -g @expo/cli
+      - name: Check project structure
+        script: |
+          ls -la
+          pwd
       - name: Prebuild Android
         script: |
-          npx expo prebuild --platform android --clean
+          npx expo prebuild --platform android --clean --non-interactive
+      - name: Check Android folder
+        script: |
+          ls -la android/
+          ls -la android/app/
       - name: Fix Gradle permissions
         script: |
           chmod +x android/gradlew
       - name: Build APK
         script: |
           cd android
-          ./gradlew assembleRelease --stacktrace
+          ./gradlew assembleRelease --stacktrace --info
     artifacts:
       - android/app/build/outputs/**/*.apk
     publishing:
