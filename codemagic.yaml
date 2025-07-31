@@ -53,7 +53,7 @@ workflows:
     publishing:
       email:
         recipients:
-          - your-email@example.com
+          - feimi4all@gmail.com
       scripts:
         - name: Build completed
           script: |
