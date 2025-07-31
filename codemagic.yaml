@@ -5,26 +5,23 @@ workflows:
       node: 18
       vars:
         PACKAGE_NAME: "com.amazonflexclone.app"
-        EXPO_PROJECT_ID: "AmazonFlexClone"
     scripts:
-      - name: Install Expo CLI
-        script: |
-          npm install -g @expo/cli eas-cli
       - name: Install dependencies
         script: |
           npm install --legacy-peer-deps
-      - name: Build Android APK
+      - name: Install Expo CLI
         script: |
-          eas build --platform android --non-interactive
+          npm install -g @expo/cli
+      - name: Prebuild Android
+        script: |
+          npx expo prebuild --platform android
+      - name: Build APK
+        script: |
+          cd android
+          ./gradlew assembleRelease
     artifacts:
-      - build/**/outputs/**/*.apk
       - android/app/build/outputs/**/*.apk
     publishing:
       email:
         recipients:
-          - your-email@example.com
-      scripts:
-        - name: Build completed
-          script: |
-            echo "APK built successfully!"
-            echo "You can download the APK from the artifacts section." 
+          - your-email@example.com 
