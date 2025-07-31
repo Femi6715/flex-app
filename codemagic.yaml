@@ -10,29 +10,15 @@ workflows:
         script: |
           rm -rf node_modules package-lock.json
           npm install --force --legacy-peer-deps
-      - name: Install Expo CLI
+      - name: Install EAS CLI
         script: |
-          npm install -g @expo/cli
-      - name: Check project structure
+          npm install -g @expo/cli eas-cli
+      - name: Build APK with EAS
         script: |
-          ls -la
-          pwd
-      - name: Prebuild Android
-        script: |
-          npx expo prebuild --platform android --clean --non-interactive
-      - name: Check Android folder
-        script: |
-          ls -la android/
-          ls -la android/app/
-      - name: Fix Gradle permissions
-        script: |
-          chmod +x android/gradlew
-      - name: Build APK
-        script: |
-          cd android
-          ./gradlew assembleRelease --stacktrace --info
+          eas build --platform android --non-interactive --local
     artifacts:
-      - android/app/build/outputs/**/*.apk
+      - build/**/outputs/**/*.apk
+      - *.apk
     publishing:
       email:
         recipients:
