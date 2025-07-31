@@ -13,9 +13,6 @@ workflows:
       - name: Install Expo CLI
         script: |
           npm install -g @expo/cli
-      - name: Set up Android SDK
-        script: |
-          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.0"
       - name: Prebuild Android
         script: |
           npx expo prebuild --platform android --clean
