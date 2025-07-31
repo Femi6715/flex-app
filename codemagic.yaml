@@ -47,13 +47,17 @@ workflows:
           if [ $? -eq 0 ]; then
             ./gradlew assembleRelease --stacktrace --info
           fi
+          
+          # List the APK files
+          echo "=== Available APK files ==="
+          find . -name "*.apk" -ls
     artifacts:
-      - build/**/outputs/**/*.apk
-      - android/app/build/outputs/**/*.apk
+      - android/app/build/outputs/apk/debug/*.apk
+      - android/app/build/outputs/apk/release/*.apk
     publishing:
       email:
         recipients:
-          - feimi4all@gmail.com
+          - emman8@gmail.com # Using the username from your Expo account
       scripts:
         - name: Build completed
           script: |
