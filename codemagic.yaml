@@ -6,15 +6,19 @@ workflows:
       vars:
         PACKAGE_NAME: "com.amazonflexclone.app"
     scripts:
-      - name: Install dependencies
+      - name: Clean install dependencies
         script: |
-          npm install --legacy-peer-deps
+          rm -rf node_modules package-lock.json
+          npm install --force --legacy-peer-deps
       - name: Install Expo CLI
         script: |
           npm install -g @expo/cli
       - name: Prebuild Android
         script: |
           npx expo prebuild --platform android
+      - name: Fix Gradle permissions
+        script: |
+          chmod +x android/gradlew
       - name: Build APK
         script: |
           cd android
