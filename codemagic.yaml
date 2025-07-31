@@ -7,6 +7,7 @@ workflows:
         PACKAGE_NAME: "com.amazonflexclone.app"
         EXPO_PROJECT_ID: "AmazonFlexClone"
         CI: 1
+        EXPO_TOKEN: "RRFWQu6Vk7QKsvenRaxrbUujXV0c-lCf7JpyU-0S"
     scripts:
       - name: Install Expo CLI
         script: |
@@ -16,7 +17,8 @@ workflows:
           npm install
       - name: Build Android APK
         script: |
-          eas build -p android --local
+          echo $EXPO_TOKEN | eas login
+          eas build -p android --local --non-interactive
     artifacts:
       - build/**/outputs/**/*.apk
       - android/app/build/outputs/**/*.apk
