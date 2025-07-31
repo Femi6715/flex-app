@@ -18,7 +18,7 @@ workflows:
       - name: Build Android APK
         script: |
           echo $EXPO_TOKEN | eas login
-          eas build -p android --local --non-interactive
+          cd android && ./gradlew assembleRelease
     artifacts:
       - build/**/outputs/**/*.apk
       - android/app/build/outputs/**/*.apk
