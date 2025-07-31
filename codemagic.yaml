@@ -18,7 +18,6 @@ workflows:
           eas build --platform android --non-interactive --local
     artifacts:
       - build/**/outputs/**/*.apk
-      - *.apk
     publishing:
       email:
         recipients:
