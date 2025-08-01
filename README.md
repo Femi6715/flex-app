@@ -1,8 +1,4 @@
-# Amazon Flex Clone App
-
-A React Native mobile application that replicates the core functionality of Amazon Flex, allowing drivers to view available delivery blocks, manage their itinerary, and access their profile information.
-
-## Features
+#
 
 ### 🏠 Home Screen
 - View available delivery blocks with time slots and pay rates
