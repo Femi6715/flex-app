@@ -9,71 +9,44 @@ workflows:
         CI: 1
         EXPO_TOKEN: "RRFWQu6Vk7QKsvenRaxrbUujXV0c-lCf7JpyU-0S"
     scripts:
-      - name: Install Expo CLI
+      - name: Install Expo & EAS CLI
         script: |
-          npm install -g @expo/cli eas-cli
+          npm install -g expo-cli eas-cli
+
       - name: Install dependencies
         script: |
           npm install
-      - name: Debug environment
-        script: |
-          echo "Current directory: $PWD"
-          ls -la
-          echo "FCI_BUILD_DIR: $FCI_BUILD_DIR"
-          ls -la $FCI_BUILD_DIR
-      - name: Setup build environment
-        script: |
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > "android/local.properties"
-          yarn install
-          cd android
-          chmod +x gradlew
-          ./gradlew -v
-      - name: Build Android APK
-        script: |
-          cd android
-          ./gradlew clean assembleDebug --stacktrace --info
 
-          if [ $? -eq 0 ]; then
-            ./gradlew assembleRelease bundleRelease --stacktrace --info
+      - name: EAS Login
+        script: |
+          eas whoami || eas login --token=$EXPO_TOKEN
+
+      - name: Configure and Build APK using EAS
+        script: |
+          # Optional: configure EAS build profile if not already set
+          if [ ! -f eas.json ]; then
+            eas build:configure
           fi
 
-          echo "=== Available APK files ==="
-          find . -name "*.apk" -ls
+          # Start the Android build
+          eas build --platform android --profile preview --non-interactive
 
-          # Export directories
+          # Find the APK path in the output
+          APK_PATH=$(find . -name "*.apk" | head -n 1)
+
+          echo "APK generated at: $APK_PATH"
+
+          # Create export dir and copy it
           mkdir -p $FCI_EXPORT_DIR/apk
-          mkdir -p $FCI_EXPORT_DIR/bundle
-
-          # Copy debug APK
-          if [ -d "app/build/outputs/apk/debug" ]; then
-            cp app/build/outputs/apk/debug/*.apk $FCI_EXPORT_DIR/apk/
-          fi
-
-          # Copy release APK
-          if [ -d "app/build/outputs/apk/release" ]; then
-            cp app/build/outputs/apk/release/*.apk $FCI_EXPORT_DIR/apk/
-          fi
-
-          # Copy AAB
-          if [ -d "app/build/outputs/bundle/release" ]; then
-            cp app/build/outputs/bundle/release/*.aab $FCI_EXPORT_DIR/bundle/
-          fi
-
-          # List final exported files
-          echo "=== APKs in Export Dir ==="
-          ls -la $FCI_EXPORT_DIR/apk
-
-          echo "=== AABs in Export Dir ==="
-          ls -la $FCI_EXPORT_DIR/bundle
+          cp "$APK_PATH" $FCI_EXPORT_DIR/apk/
     artifacts:
       - $FCI_EXPORT_DIR/apk/*.apk
-      - $FCI_EXPORT_DIR/bundle/*.aab
     publishing:
       email:
         recipients:
-          - emman8@gmail.com
+          - Femi4all@gmail.com
       scripts:
         - name: Build completed
           script: |
-            echo "APK built successfully!"
-            echo "You can download the APK from the artifacts section."
+            echo "EAS APK built successfully!"
+            echo "You can download it from the artifacts section."
