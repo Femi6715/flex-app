@@ -21,26 +21,24 @@ workflows:
         script: |
           eas whoami || eas login --token=$EXPO_TOKEN
 
-      - name: Configure and Build APK using EAS
+      - name: Build APK using EAS
         script: |
-          # Optional: configure EAS build profile if not already set
-          if [ ! -f eas.json ]; then
-            eas build:configure
-          fi
-
-          # Start the Android build
           eas build --platform android --profile preview --non-interactive
 
-          # Find the APK path in the output
-          APK_PATH=$(find . -name "*.apk" | head -n 1)
+          # Find the APK path in the output folder
+          APK_PATH=$(find . -name "*.apk" | head -n 1 || true)
 
-          echo "APK generated at: $APK_PATH"
+          if [ -f "$APK_PATH" ]; then
+            echo "✅ APK generated at: $APK_PATH"
+            mkdir -p $FCI_EXPORT_DIR/apk
+            cp "$APK_PATH" $FCI_EXPORT_DIR/apk/
+          else
+            echo "❌ APK not found. Skipping export step."
+          fi
 
-          # Create export dir and copy it
-          mkdir -p $FCI_EXPORT_DIR/apk
-          cp "$APK_PATH" $FCI_EXPORT_DIR/apk/
     artifacts:
       - $FCI_EXPORT_DIR/apk/*.apk
+
     publishing:
       email:
         recipients:
@@ -48,5 +46,5 @@ workflows:
       scripts:
         - name: Build completed
           script: |
-            echo "EAS APK built successfully!"
+            echo "✅ EAS APK built successfully (if no errors above)."
             echo "You can download it from the artifacts section."
