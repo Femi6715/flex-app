@@ -21,70 +21,59 @@ workflows:
           ls -la
           echo "FCI_BUILD_DIR: $FCI_BUILD_DIR"
           ls -la $FCI_BUILD_DIR
-          
       - name: Setup build environment
         script: |
-          # Setup Android SDK path
           echo "sdk.dir=$ANDROID_SDK_ROOT" > "android/local.properties"
-          
-          # Install dependencies
           yarn install
-          
-          # Setup Gradle
           cd android
           chmod +x gradlew
-          
-          # Show environment info
           ./gradlew -v
-          
       - name: Build Android APK
         script: |
           cd android
-          # Build debug APK first
           ./gradlew clean assembleDebug --stacktrace --info
-          
-          # If debug build succeeds, build release APK and Bundle
+
           if [ $? -eq 0 ]; then
             ./gradlew assembleRelease bundleRelease --stacktrace --info
           fi
-          
-          # List and collect APK files
+
           echo "=== Available APK files ==="
           find . -name "*.apk" -ls
-          
-          # Create artifacts directories
+
+          # Export directories
           mkdir -p $FCI_EXPORT_DIR/apk
           mkdir -p $FCI_EXPORT_DIR/bundle
-          
-          # Copy APK files to export directory
+
+          # Copy debug APK
           if [ -d "app/build/outputs/apk/debug" ]; then
             cp app/build/outputs/apk/debug/*.apk $FCI_EXPORT_DIR/apk/
           fi
+
+          # Copy release APK
           if [ -d "app/build/outputs/apk/release" ]; then
             cp app/build/outputs/apk/release/*.apk $FCI_EXPORT_DIR/apk/
           fi
-          
-          # Copy AAB files to export directory
+
+          # Copy AAB
           if [ -d "app/build/outputs/bundle/release" ]; then
             cp app/build/outputs/bundle/release/*.aab $FCI_EXPORT_DIR/bundle/
           fi
-          
-          # List exported files
-          echo "=== Exported APK files ==="
-          ls -la $FCI_EXPORT_DIR/apk/
-          echo "=== Exported AAB files ==="
-          ls -la $FCI_EXPORT_DIR/bundle/
+
+          # List final exported files
+          echo "=== APKs in Export Dir ==="
+          ls -la $FCI_EXPORT_DIR/apk
+
+          echo "=== AABs in Export Dir ==="
+          ls -la $FCI_EXPORT_DIR/bundle
     artifacts:
-      - $FCI_BUILD_DIR/android/app/build/outputs/apk/**/*.apk
-      - $HOME/clone/android/app/build/outputs/apk/**/*.apk
-      - android/app/build/outputs/bundle/**/*.aab
-      - $FCI_BUILD_DIR/android/app/build/outputs/bundle/**/*.aab
+      - $FCI_EXPORT_DIR/apk/*.apk
+      - $FCI_EXPORT_DIR/bundle/*.aab
     publishing:
       email:
         recipients:
-          - emman8@gmail.com # Using the username from your Expo account
+          - emman8@gmail.com
       scripts:
         - name: Build completed
           script: |
             echo "APK built successfully!"
-            echo "You can download the APK from the artifacts section." 
+            echo "You can download the APK from the artifacts section."
